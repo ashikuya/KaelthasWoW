@@ -1,5 +1,6 @@
 import { Download, Settings, Wifi, Sword, Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const steps = [
@@ -8,7 +9,7 @@ const steps = [
     icon: Download,
     title: "Client herunterladen",
     description: "Lade den offiziellen WoW 3.3.5a Client herunter oder nutze deinen vorhandenen Client.",
-    action: { label: "Download Link", href: "#" },
+    action: { label: "Client Download", href: "https://wowup.io", isLink: false },
     color: "gold",
   },
   {
@@ -25,7 +26,7 @@ const steps = [
     icon: Wifi,
     title: "Account erstellen",
     description: "Registriere dich auf unserer Webseite und erstelle deinen Spieleraccount in wenigen Sekunden.",
-    action: { label: "Registrieren", href: "#" },
+    action: { label: "Registrieren", href: "/login", isLink: true },
     color: "gold",
   },
   {
@@ -165,14 +166,25 @@ const HowToPlay = () => {
 
                 {/* Action button */}
                 {action && (
-                  <a
-                    href={action.href}
-                    className={`text-center py-2 px-4 rounded text-sm font-cinzel font-semibold tracking-wider transition-all duration-300 ${
-                      color === "gold" ? "btn-gold" : "btn-frost"
-                    }`}
-                  >
-                    {action.label}
-                  </a>
+                  (action as any).isLink ? (
+                    <Link
+                      to={action.href}
+                      className={`text-center py-2 px-4 rounded text-sm font-cinzel font-semibold tracking-wider transition-all duration-300 ${
+                        color === "gold" ? "btn-gold" : "btn-frost"
+                      }`}
+                    >
+                      {action.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={action.href}
+                      className={`text-center py-2 px-4 rounded text-sm font-cinzel font-semibold tracking-wider transition-all duration-300 ${
+                        color === "gold" ? "btn-gold" : "btn-frost"
+                      }`}
+                    >
+                      {action.label}
+                    </a>
+                  )
                 )}
               </div>
             </div>

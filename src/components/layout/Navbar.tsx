@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 const navLinks = [
   { label: "Home", href: "#home" },
+  { label: "News", href: "#news" },
   { label: "Features", href: "#features" },
   { label: "Raten", href: "#rates" },
   { label: "Verbinden", href: "#connect" },
