@@ -103,7 +103,7 @@ const Login = () => {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-              filter: "drop-shadow(0 0 20px hsla(43,65%,52%,0.5))",
+              textShadow: "none",
             }}
           >
             KAELTHAS
