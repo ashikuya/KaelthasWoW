@@ -120,28 +120,23 @@ const HeroSlider = () => {
         </div>
 
         {/* Title */}
-        <div
+        <h1
+          className="font-cinzel font-black mb-4 leading-none"
           style={{
+            fontSize: "clamp(3.5rem, 10vw, 8rem)",
+            background: isGold
+              ? "linear-gradient(180deg, hsl(43,75%,72%) 0%, hsl(43,65%,52%) 50%, hsl(40,60%,38%) 100%)"
+              : "linear-gradient(180deg, hsl(200,90%,85%) 0%, hsl(200,85%,55%) 50%, hsl(205,80%,38%) 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
             filter: isGold
               ? "drop-shadow(0 0 30px hsla(43,65%,52%,0.5))"
               : "drop-shadow(0 0 30px hsla(200,85%,55%,0.5))",
           }}
         >
-          <h1
-            className="font-cinzel font-black mb-4 leading-none"
-            style={{
-              fontSize: "clamp(3.5rem, 10vw, 8rem)",
-              background: isGold
-                ? "linear-gradient(180deg, hsl(43,75%,72%) 0%, hsl(43,65%,52%) 50%, hsl(40,60%,38%) 100%)"
-                : "linear-gradient(180deg, hsl(200,90%,85%) 0%, hsl(200,85%,55%) 50%, hsl(205,80%,38%) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            {slide.title}
-          </h1>
-        </div>
+          {slide.title}
+        </h1>
 
         <div className={isGold ? "divider-gold max-w-xs mx-auto mb-6" : "divider-frost max-w-xs mx-auto mb-6"} />
 
