@@ -124,7 +124,7 @@ const UCPLayout = ({ children, tab, setTab, sidebarOpen, setSidebarOpen }: {
         {/* Top bar */}
         <div
           className="sticky top-0 z-40 flex items-center justify-between h-14 px-4 sm:px-6 lg:hidden"
-          style={{ background: "hsla(220,42%,6%,0.97)", borderBottom: "1px solid hsl(220,30%,13%)", backdropFilter: "blur(10px)" }}
+          style={{ background: "hsl(220,42%,6%)/95", borderBottom: "1px solid hsl(220,30%,13%)", backdropFilter: "blur(10px)" }}
         >
           <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ color: "hsl(215,20%,60%)" }}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
