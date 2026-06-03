@@ -1,4 +1,5 @@
 import { Sword, Users, Shield, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
@@ -80,10 +81,10 @@ const HeroSection = () => {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-fade-up animate-delay-300">
-          <a href="#connect" className="btn-gold px-8 py-3.5 rounded text-base flex items-center gap-2 w-full sm:w-auto justify-center">
+          <Link to="/login" className="btn-gold px-8 py-3.5 rounded text-base flex items-center gap-2 w-full sm:w-auto justify-center">
             <Sword className="w-5 h-5" />
             Abenteuer beginnen
-          </a>
+          </Link>
           <a href="#features" className="btn-frost px-8 py-3.5 rounded text-base flex items-center gap-2 w-full sm:w-auto justify-center">
             <Shield className="w-5 h-5" />
             Server entdecken
