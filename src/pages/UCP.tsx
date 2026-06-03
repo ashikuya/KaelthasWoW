@@ -3,15 +3,62 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, User, Sword, Ticket, Star, LogOut, Menu, X,
   Shield, Globe, Clock, Plus, ChevronRight, Check, Loader2,
-  Settings, Copy
+  Settings, Copy, Database, Coins, Timer, Wifi, WifiOff
 } from "lucide-react";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Character, SupportTicket, Vote, WOW_CLASSES, WOW_CLASS_COLORS, WOW_RACES_ALLIANCE, WOW_RACES_HORDE } from "@/types/index";
 import logoImg from "@/assets/logo.png";
 
-type Tab = "dashboard" | "characters" | "tickets" | "settings";
+type Tab = "dashboard" | "characters" | "game_chars" | "tickets" | "settings";
+
+// ─── AzerothCore API helper ───────────────────────────────────────────────────
+async function callAzerothcoreApi(action: string) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token ?? "";
+  const { data, error } = await supabase.functions.invoke("azerothcore-api", {
+    body: { action },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (error) {
+    let msg = error.message;
+    if (error instanceof FunctionsHttpError) {
+      try { msg = await error.context.text(); } catch { /* noop */ }
+    }
+    throw new Error(msg);
+  }
+  return data;
+}
+
+// WoW class colors by German class name
+const GAME_CLASS_COLORS: Record<string, string> = {
+  "Krieger": "#C79C6E",
+  "Paladin": "#F58CBA",
+  "Jäger": "#ABD473",
+  "Schurke": "#FFF569",
+  "Priester": "#FFFFFF",
+  "Todesritter": "#C41F3B",
+  "Schamane": "#0070DE",
+  "Magier": "#69CCF0",
+  "Hexenmeister": "#9482C9",
+  "Druide": "#FF7D0A",
+};
+
+function formatPlaytime(seconds: number) {
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  if (d > 0) return `${d}d ${h}h`;
+  return `${h}h`;
+}
+
+function formatGold(copper: number) {
+  const gold = Math.floor(copper / 10000);
+  const silver = Math.floor((copper % 10000) / 100);
+  if (gold > 0) return `${gold.toLocaleString()}g ${silver}s`;
+  return `${silver}s`;
+}
 
 const UCPLayout = ({ children, tab, setTab, sidebarOpen, setSidebarOpen }: {
   children: React.ReactNode;
@@ -32,7 +79,8 @@ const UCPLayout = ({ children, tab, setTab, sidebarOpen, setSidebarOpen }: {
 
   const navItems: { id: Tab; icon: React.ElementType; label: string }[] = [
     { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { id: "characters", icon: Sword, label: "Charaktere" },
+    { id: "game_chars", icon: Database, label: "Game Chars" },
+    { id: "characters", icon: Sword, label: "Web Charaktere" },
     { id: "tickets", icon: Ticket, label: "Support" },
     { id: "settings", icon: Settings, label: "Einstellungen" },
   ];
@@ -255,6 +303,132 @@ const DashboardTab = () => {
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+// ─── Game Characters Tab (real AzerothCore data) ────────────────────────────
+const GameCharsTab = () => {
+  const [chars, setChars] = useState<any[]>([]);
+  const [account, setAccount] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    callAzerothcoreApi("get_characters")
+      .then((res) => {
+        setChars(res.characters ?? []);
+        if (res.accountId) setAccount({ id: res.accountId });
+        if (res.message) setError(res.message);
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-cinzel font-bold text-2xl" style={{ color: "hsl(210,40%,92%)" }}>Game Charaktere</h1>
+        <p className="text-sm mt-1" style={{ color: "hsl(215,20%,50%)" }}>Deine echten Charaktere direkt aus der AzerothCore-Datenbank.</p>
+      </div>
+
+      {loading && (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "hsl(43,65%,52%)" }} />
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="glass-card rounded-xl p-8 text-center" style={{ borderColor: "hsla(0,60%,55%,0.3)" }}>
+          <Database className="w-10 h-10 mx-auto mb-3" style={{ color: "hsl(0,60%,55%)" }} />
+          <p className="font-cinzel font-semibold mb-1" style={{ color: "hsl(0,60%,65%)" }}>Verbindung fehlgeschlagen</p>
+          <p className="text-sm" style={{ color: "hsl(215,20%,48%)" }}>{error}</p>
+          <p className="text-xs mt-2" style={{ color: "hsl(215,20%,38%)" }}>Stelle sicher dass deine E-Mail mit dem AzerothCore-Account übereinstimmt und der MySQL-Server erreichbar ist.</p>
+        </div>
+      )}
+
+      {!loading && !error && account && (
+        <div className="glass-card rounded-xl p-4 flex items-center gap-3" style={{ borderColor: "hsla(120,60%,50%,0.3)" }}>
+          <div className="w-2 h-2 rounded-full bg-[hsl(120,60%,50%)] animate-pulse" />
+          <span className="font-cinzel text-sm" style={{ color: "hsl(120,60%,60%)" }}>AzerothCore Account #{account.id} verbunden</span>
+        </div>
+      )}
+
+      {!loading && !error && chars.length === 0 && (
+        <div className="glass-card rounded-xl p-12 text-center">
+          <Sword className="w-12 h-12 mx-auto mb-4" style={{ color: "hsl(215,20%,35%)" }} />
+          <p className="font-cinzel font-semibold mb-2" style={{ color: "hsl(215,20%,55%)" }}>Keine Charaktere gefunden</p>
+          <p className="text-sm" style={{ color: "hsl(215,20%,40%)" }}>Erstelle deinen ersten Helden im Spiel!</p>
+        </div>
+      )}
+
+      {!loading && chars.length > 0 && (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {chars.map((char) => {
+            const classColor = GAME_CLASS_COLORS[char.class] ?? "#aaa";
+            return (
+              <div
+                key={char.guid}
+                className="glass-card rounded-xl p-5 flex flex-col gap-3 hover:scale-[1.02] transition-transform duration-200"
+                style={{ borderColor: char.online ? "hsla(120,60%,50%,0.35)" : undefined }}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-cinzel font-bold text-lg" style={{ color: classColor }}>{char.name}</h3>
+                    <p className="font-cinzel text-xs tracking-wider mt-0.5" style={{ color: "hsl(215,20%,50%)" }}>{char.race} · {char.class}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span
+                      className="font-cinzel text-xs px-2.5 py-1 rounded-full"
+                      style={{
+                        color: char.faction === "alliance" ? "hsl(200,85%,65%)" : "hsl(0,70%,60%)",
+                        background: char.faction === "alliance" ? "hsla(200,85%,55%,0.1)" : "hsla(0,70%,55%,0.1)",
+                        border: `1px solid ${char.faction === "alliance" ? "hsla(200,85%,55%,0.3)" : "hsla(0,70%,55%,0.3)"}`,
+                      }}
+                    >
+                      {char.faction === "alliance" ? "Allianz" : "Horde"}
+                    </span>
+                    {char.online && (
+                      <div className="flex items-center gap-1">
+                        <Wifi className="w-3 h-3" style={{ color: "hsl(120,60%,55%)" }} />
+                        <span className="font-cinzel text-xs" style={{ color: "hsl(120,60%,55%)" }}>Online</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Level bar */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-cinzel text-xs" style={{ color: "hsl(215,20%,48%)" }}>Level</span>
+                    <span className="font-cinzel text-sm font-bold" style={{ color: classColor }}>{char.level}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full" style={{ background: "hsl(220,30%,14%)" }}>
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${(char.level / 80) * 100}%`, background: classColor }}
+                    />
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{ background: "hsl(220,42%,8%)" }}>
+                    <Coins className="w-3 h-3" style={{ color: "hsl(43,65%,52%)" }} />
+                    <span className="font-cinzel text-xs" style={{ color: "hsl(43,65%,58%)" }}>{formatGold(char.money)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{ background: "hsl(220,42%,8%)" }}>
+                    <Timer className="w-3 h-3" style={{ color: "hsl(200,85%,55%)" }} />
+                    <span className="font-cinzel text-xs" style={{ color: "hsl(200,85%,65%)" }}>{formatPlaytime(char.totaltime)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -664,6 +838,7 @@ const UCP = () => {
 
   const content = {
     dashboard: <DashboardTab />,
+    game_chars: <GameCharsTab />,
     characters: <CharactersTab />,
     tickets: <TicketsTab />,
     settings: <SettingsTab />,
