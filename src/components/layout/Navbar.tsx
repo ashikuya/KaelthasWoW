@@ -8,16 +8,19 @@ import { toast } from "sonner";
 
 const navLinks = [
   { label: "Home", href: "#home" },
+  { label: "News", href: "#news" },
   { label: "Features", href: "#features" },
+  { label: "Gallery", href: "#gallery" },
   { label: "Raten", href: "#rates" },
+  { label: "Voten", href: "#leaderboard" },
   { label: "Verbinden", href: "#connect" },
-  { label: "Community", href: "#community" },
 ];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [onlinePlayers] = useState(247);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -60,8 +63,14 @@ const Navbar = () => {
             </div>
           </a>
 
+          {/* Online Badge */}
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: "hsla(120,60%,50%,0.1)", border: "1px solid hsla(120,60%,50%,0.25)" }}>
+            <div className="w-1.5 h-1.5 rounded-full bg-[hsl(120,60%,50%)] animate-pulse" />
+            <span className="font-cinzel text-xs" style={{ color: "hsl(120,60%,55%)" }}>{onlinePlayers} Online</span>
+          </div>
+
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <a
                 key={link.label}
