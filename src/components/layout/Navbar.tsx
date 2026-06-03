@@ -3,6 +3,7 @@ import { Menu, X, Sword, User, LogOut, LayoutDashboard } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logoImg from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnlineCount } from "@/hooks/useOnlineCount";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
@@ -20,7 +21,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [onlinePlayers] = useState(247);
+  const { count: onlinePlayers, loading: countLoading } = useOnlineCount(60_000);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -66,7 +67,9 @@ const Navbar = () => {
           {/* Online Badge */}
           <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: "hsla(120,60%,50%,0.1)", border: "1px solid hsla(120,60%,50%,0.25)" }}>
             <div className="w-1.5 h-1.5 rounded-full bg-[hsl(120,60%,50%)] animate-pulse" />
-            <span className="font-cinzel text-xs" style={{ color: "hsl(120,60%,55%)" }}>{onlinePlayers} Online</span>
+            <span className="font-cinzel text-xs" style={{ color: "hsl(120,60%,55%)" }}>
+              {countLoading ? "..." : `${onlinePlayers ?? 0} Online`}
+            </span>
           </div>
 
           {/* Desktop Nav */}

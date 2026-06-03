@@ -44,7 +44,29 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Authenticate via JWT
+    const body = await req.json();
+    const { action } = body;
+
+    console.log(`[azerothcore-api] action=${action}`);
+
+    // ─── Public action: no auth required ────────────────────────────────────
+    if (action === "get_online_count") {
+      const charsConn = await getConnection();
+      try {
+        const [rows]: any = await charsConn.execute(
+          "SELECT COUNT(*) as count FROM characters WHERE online = 1"
+        );
+        await charsConn.end();
+        return new Response(JSON.stringify({ count: rows[0]?.count ?? 0 }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        await charsConn.end().catch(() => {});
+        throw e;
+      }
+    }
+
+    // ─── All other actions require JWT ───────────────────────────────────────
     const authHeader = req.headers.get("Authorization");
     const token = authHeader?.replace("Bearer ", "");
     if (!token) {
@@ -65,8 +87,6 @@ Deno.serve(async (req: Request) => {
     }
 
     const userEmail = user.email?.toLowerCase() ?? "";
-    const body = await req.json();
-    const { action } = body;
 
     console.log(`[azerothcore-api] action=${action} email=${userEmail}`);
 
@@ -140,23 +160,6 @@ Deno.serve(async (req: Request) => {
           faction: FACTION_BY_RACE[c.race] ?? "unknown",
         }));
         return new Response(JSON.stringify({ characters, accountId }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      } catch (e) {
-        await charsConn.end().catch(() => {});
-        throw e;
-      }
-    }
-
-    // ─── Get server online count ──────────────────────────────────────────────
-    if (action === "get_online_count") {
-      const charsConn = await getConnection();
-      try {
-        const [rows]: any = await charsConn.execute(
-          "SELECT COUNT(*) as count FROM characters WHERE online = 1"
-        );
-        await charsConn.end();
-        return new Response(JSON.stringify({ count: rows[0]?.count ?? 0 }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (e) {

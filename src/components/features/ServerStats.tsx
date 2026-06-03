@@ -1,37 +1,40 @@
 import { Users, Globe, Star, Clock } from "lucide-react";
-
-const stats = [
-  {
-    icon: Users,
-    value: "247",
-    label: "Spieler Online",
-    color: "frost",
-    pulse: true,
-  },
-  {
-    icon: Globe,
-    value: "99.9%",
-    label: "Uptime",
-    color: "gold",
-    pulse: false,
-  },
-  {
-    icon: Star,
-    value: "4.8/5",
-    label: "Community Rating",
-    color: "gold",
-    pulse: false,
-  },
-  {
-    icon: Clock,
-    value: "365",
-    label: "Tage Online",
-    color: "frost",
-    pulse: false,
-  },
-];
+import { useOnlineCount } from "@/hooks/useOnlineCount";
 
 const ServerStats = () => {
+  const { count, loading } = useOnlineCount(60_000);
+
+  const stats = [
+    {
+      icon: Users,
+      value: loading ? "..." : String(count ?? 0),
+      label: "Spieler Online",
+      color: "frost",
+      pulse: true,
+    },
+    {
+      icon: Globe,
+      value: "99.9%",
+      label: "Uptime",
+      color: "gold",
+      pulse: false,
+    },
+    {
+      icon: Star,
+      value: "4.8/5",
+      label: "Community Rating",
+      color: "gold",
+      pulse: false,
+    },
+    {
+      icon: Clock,
+      value: "365",
+      label: "Tage Online",
+      color: "frost",
+      pulse: false,
+    },
+  ];
+
   return (
     <section id="stats" className="py-12 border-y border-[hsl(220,30%,12%)]" style={{ background: "hsl(220,50%,5%)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
