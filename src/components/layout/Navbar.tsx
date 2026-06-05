@@ -11,7 +11,6 @@ const navLinks = [
   { label: "Home", href: "#home" },
   { label: "News", href: "#news" },
   { label: "Features", href: "#features" },
-  { label: "Gallery", href: "#gallery" },
   { label: "Raten", href: "#rates" },
   { label: "Voten", href: "#leaderboard" },
   { label: "Verbinden", href: "#connect" },
@@ -73,7 +72,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-5">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -86,6 +85,15 @@ const Navbar = () => {
                 {link.label}
               </a>
             ))}
+            <Link
+              to="/forum"
+              className="font-cinzel text-sm tracking-wider transition-all duration-300"
+              style={{ color: "hsl(200,85%,65%)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "hsl(43,65%,52%)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "hsl(200,85%,65%)"; }}
+            >
+              Forum
+            </Link>
           </div>
 
           {/* CTA / User Menu */}
@@ -188,6 +196,14 @@ const Navbar = () => {
                   {link.label}
                 </a>
               ))}
+              <Link
+                to="/forum"
+                className="block px-4 py-3 font-cinzel text-sm tracking-wider hover:bg-[hsl(220,30%,8%)] rounded transition-all"
+                style={{ color: "hsl(200,85%,65%)" }}
+                onClick={() => setMenuOpen(false)}
+              >
+                Forum
+              </Link>
               <div className="px-4 pt-2 flex flex-col gap-2">
                 {user ? (
                   <>

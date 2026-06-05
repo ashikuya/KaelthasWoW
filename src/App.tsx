@@ -7,6 +7,10 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import UCP from "./pages/UCP";
+import Forum from "./pages/Forum";
+import ForumCategory from "./pages/ForumCategory";
+import ForumThread from "./pages/ForumThread";
+import ForumNewThread from "./pages/ForumNewThread";
 import ProtectedRoute from "./components/features/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +26,10 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forum" element={<Forum />} />
+            <Route path="/forum/category/:id" element={<ForumCategory />} />
+            <Route path="/forum/thread/:id" element={<ForumThread />} />
+            <Route path="/forum/new" element={<ForumNewThread />} />
             <Route
               path="/ucp"
               element={
