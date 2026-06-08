@@ -53,11 +53,40 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-24 section-gradient">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="features" className="py-28 relative overflow-hidden" style={{ background: "hsl(222,47%,4%)" }}>
+      {/* Animated background grid */}
+      <div className="absolute inset-0 pointer-events-none features-grid-bg" />
+
+      {/* Ambient orbs */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: 600,
+          height: 600,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, hsla(43,65%,52%,0.04) 0%, transparent 70%)",
+          top: "-100px",
+          left: "-100px",
+          animation: "orb-drift 12s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: 500,
+          height: 500,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, hsla(200,85%,55%,0.04) 0%, transparent 70%)",
+          bottom: "-80px",
+          right: "-80px",
+          animation: "orb-drift 15s ease-in-out 3s infinite reverse",
+        }}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[hsl(43,65%,52%)]/30 bg-[hsl(43,65%,52%)]/8 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[hsl(43,65%,52%)]/30 bg-[hsl(43,65%,52%)]/8 mb-6 backdrop-blur-sm">
             <Sword className="w-3 h-3 text-[hsl(43,65%,52%)]" />
             <span className="font-cinzel text-xs tracking-widest text-[hsl(43,65%,52%)]">
               SERVER FEATURES
@@ -84,67 +113,56 @@ const FeaturesSection = () => {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {features.map(({ icon: Icon, title, description, color }) => (
+          {features.map(({ icon: Icon, title, description, color }, i) => (
             <div
               key={title}
-              className="glass-card rounded-xl p-6 group hover:scale-105 hover:border-opacity-60 transition-all duration-300 cursor-default"
-              style={{
-                borderColor:
-                  color === "gold"
-                    ? "hsla(43,65%,52%,0.2)"
-                    : "hsla(200,85%,55%,0.2)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  color === "gold"
-                    ? "hsla(43,65%,52%,0.5)"
-                    : "hsla(200,85%,55%,0.5)";
-                (e.currentTarget as HTMLElement).style.boxShadow =
-                  color === "gold"
-                    ? "0 0 20px hsla(43,65%,52%,0.1)"
-                    : "0 0 20px hsla(200,85%,55%,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  color === "gold"
-                    ? "hsla(43,65%,52%,0.2)"
-                    : "hsla(200,85%,55%,0.2)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "";
-              }}
+              className="feature-card group relative overflow-hidden rounded-xl p-6 cursor-default"
+              style={{ animationDelay: `${i * 0.07}s` }}
             >
+              {/* Corner accent */}
               <div
-                className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+                className="absolute top-0 left-0 w-16 h-16 pointer-events-none opacity-30"
                 style={{
-                  background:
-                    color === "gold"
-                      ? "hsla(43,65%,52%,0.12)"
-                      : "hsla(200,85%,55%,0.12)",
-                  border: `1px solid ${
-                    color === "gold"
-                      ? "hsla(43,65%,52%,0.3)"
-                      : "hsla(200,85%,55%,0.3)"
-                  }`,
+                  background: `radial-gradient(circle at top left, ${color === "gold" ? "hsl(43,65%,52%)" : "hsl(200,85%,55%)"}, transparent 70%)`,
                 }}
-              >
-                <Icon
-                  className="w-5 h-5"
+              />
+              <div
+                className="absolute bottom-0 right-0 w-12 h-12 pointer-events-none opacity-20 transition-opacity duration-300 group-hover:opacity-40"
+                style={{
+                  background: `radial-gradient(circle at bottom right, ${color === "gold" ? "hsl(43,65%,52%)" : "hsl(200,85%,55%)"}, transparent 70%)`,
+                }}
+              />
+
+              {/* Hover glow border */}
+              <div
+                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
+                style={{
+                  boxShadow: color === "gold"
+                    ? "inset 0 0 20px hsla(43,65%,52%,0.08), 0 0 20px hsla(43,65%,52%,0.06)"
+                    : "inset 0 0 20px hsla(200,85%,55%,0.08), 0 0 20px hsla(200,85%,55%,0.06)",
+                }}
+              />
+
+              <div className="relative z-10">
+                <div
+                  className="w-11 h-11 rounded-lg flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3"
                   style={{
-                    color:
-                      color === "gold"
-                        ? "hsl(43,65%,52%)"
-                        : "hsl(200,85%,55%)",
+                    background: color === "gold" ? "hsla(43,65%,52%,0.12)" : "hsla(200,85%,55%,0.12)",
+                    border: `1px solid ${color === "gold" ? "hsla(43,65%,52%,0.3)" : "hsla(200,85%,55%,0.3)"}`,
                   }}
-                />
+                >
+                  <Icon
+                    className="w-5 h-5 transition-colors duration-300"
+                    style={{ color: color === "gold" ? "hsl(43,65%,52%)" : "hsl(200,85%,55%)" }}
+                  />
+                </div>
+                <h3 className="font-cinzel font-semibold text-base mb-2 transition-colors duration-300 group-hover:text-[hsl(43,75%,68%)]" style={{ color: "hsl(210,40%,90%)" }}>
+                  {title}
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: "hsl(215,20%,52%)" }}>
+                  {description}
+                </p>
               </div>
-              <h3
-                className="font-cinzel font-semibold text-base mb-2"
-                style={{ color: "hsl(210,40%,90%)" }}
-              >
-                {title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "hsl(215,20%,52%)" }}>
-                {description}
-              </p>
             </div>
           ))}
         </div>
