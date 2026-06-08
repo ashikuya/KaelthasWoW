@@ -85,9 +85,9 @@ const HeroSection = () => {
             <Sword className="w-5 h-5" />
             Abenteuer beginnen
           </Link>
-          <a href="#features" className="btn-frost px-8 py-3.5 rounded text-base flex items-center gap-2 w-full sm:w-auto justify-center">
+          <a href="#connect" className="btn-frost px-8 py-3.5 rounded text-base flex items-center gap-2 w-full sm:w-auto justify-center">
             <Shield className="w-5 h-5" />
-            Server entdecken
+            Jetzt Spielen
           </a>
         </div>
 

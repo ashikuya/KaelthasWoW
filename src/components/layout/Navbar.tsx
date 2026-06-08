@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X, Sword, User, LogOut, LayoutDashboard } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logoImg from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useOnlineCount } from "@/hooks/useOnlineCount";
@@ -8,12 +8,12 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
 const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "News", href: "#news" },
-  { label: "Features", href: "#features" },
-  { label: "Raten", href: "#rates" },
-  { label: "Voten", href: "#leaderboard" },
-  { label: "Verbinden", href: "#connect" },
+  { label: "Home", hash: "home" },
+  { label: "News", hash: "news" },
+  { label: "Features", hash: "features" },
+  { label: "Raten", hash: "rates" },
+  { label: "Voten", hash: "leaderboard" },
+  { label: "Verbinden", hash: "connect" },
 ];
 
 const Navbar = () => {
@@ -23,6 +23,18 @@ const Navbar = () => {
   const { count: onlinePlayers, loading: countLoading } = useOnlineCount(60_000);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
+  const getHref = (hash: string) => isHome ? `#${hash}` : `/#${hash}`;
+
+  const handleNavClick = (e: React.MouseEvent, hash: string) => {
+    if (!isHome) {
+      e.preventDefault();
+      navigate(`/#${hash}`);
+    }
+    setMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -49,9 +61,18 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <a href="#home" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-[hsl(43,65%,52%)]/40 group-hover:border-[hsl(43,65%,52%)] transition-all duration-300">
-              <img src={logoImg} alt="Kaelthas" className="w-full h-full object-cover" />
+          <a
+            href={getHref("home")}
+            onClick={(e) => handleNavClick(e, "home")}
+            className="flex items-center gap-3 group"
+          >
+            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110">
+              <img
+                src={logoImg}
+                alt="Kaelthas"
+                className="w-full h-full object-contain"
+                style={{ filter: "drop-shadow(0 0 10px hsla(200,85%,55%,0.6))" }}
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-cinzel font-bold text-lg leading-none text-glow-gold" style={{ color: "hsl(43,65%,52%)" }}>
@@ -76,11 +97,12 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <a
                 key={link.label}
-                href={link.href}
-                className="font-cinzel text-sm tracking-wider transition-all duration-300"
+                href={getHref(link.hash)}
+                onClick={(e) => handleNavClick(e, link.hash)}
+                className="font-cinzel text-sm tracking-wider transition-all duration-300 cursor-pointer"
                 style={{ color: "hsl(215,20%,65%)" }}
-                onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "hsl(43,65%,52%)"; }}
-                onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "hsl(215,20%,65%)"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "hsl(43,65%,52%)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "hsl(215,20%,65%)"; }}
               >
                 {link.label}
               </a>
@@ -102,7 +124,7 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 group"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200"
                   style={{
                     background: "hsla(43,65%,52%,0.1)",
                     border: "1px solid hsla(43,65%,52%,0.3)",
@@ -164,7 +186,11 @@ const Navbar = () => {
                   <User className="w-4 h-4" />
                   Login
                 </Link>
-                <a href="#connect" className="btn-gold px-5 py-2 rounded text-sm flex items-center gap-2">
+                <a
+                  href={getHref("connect")}
+                  onClick={(e) => handleNavClick(e, "connect")}
+                  className="btn-gold px-5 py-2 rounded text-sm flex items-center gap-2"
+                >
                   <Sword className="w-4 h-4" />
                   Jetzt Spielen
                 </a>
@@ -189,9 +215,9 @@ const Navbar = () => {
               {navLinks.map((link) => (
                 <a
                   key={link.label}
-                  href={link.href}
+                  href={getHref(link.hash)}
+                  onClick={(e) => handleNavClick(e, link.hash)}
                   className="block px-4 py-3 font-cinzel text-sm tracking-wider text-[hsl(215,20%,65%)] hover:text-[hsl(43,65%,52%)] hover:bg-[hsl(220,30%,8%)] rounded transition-all"
-                  onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
                 </a>
@@ -215,17 +241,29 @@ const Navbar = () => {
                       <LayoutDashboard className="w-4 h-4" />
                       UCP öffnen
                     </Link>
-                    <button onClick={handleLogout} className="w-full text-center px-5 py-2.5 rounded text-sm font-cinzel" style={{ color: "hsl(0,60%,55%)", border: "1px solid hsla(0,60%,55%,0.3)" }}>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-center px-5 py-2.5 rounded text-sm font-cinzel"
+                      style={{ color: "hsl(0,60%,55%)", border: "1px solid hsla(0,60%,55%,0.3)" }}
+                    >
                       Abmelden
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link to="/login" onClick={() => setMenuOpen(false)} className="btn-frost w-full text-center px-5 py-2.5 rounded text-sm flex items-center justify-center gap-2">
+                    <Link
+                      to="/login"
+                      onClick={() => setMenuOpen(false)}
+                      className="btn-frost w-full text-center px-5 py-2.5 rounded text-sm flex items-center justify-center gap-2"
+                    >
                       <User className="w-4 h-4" />
                       Login / Registrieren
                     </Link>
-                    <a href="#connect" className="btn-gold w-full text-center px-5 py-2.5 rounded text-sm flex items-center justify-center gap-2">
+                    <a
+                      href={getHref("connect")}
+                      onClick={(e) => handleNavClick(e, "connect")}
+                      className="btn-gold w-full text-center px-5 py-2.5 rounded text-sm flex items-center justify-center gap-2"
+                    >
                       <Sword className="w-4 h-4" />
                       Jetzt Spielen
                     </a>
